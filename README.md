@@ -2,6 +2,9 @@
 
 EAN API Test program. Using Google's Python [Guestbook][8] as the startup project. This project uses [EAN API][9] to perform basic hotel search and hotel detail information retrieval. Google map API is also used to display hotel's location on the Map.  
 
+## Datastore setup
+This application require storing EAN configuration (_cid_, _apiKey_, _secret_) and Google Map Key (_mapKey_) in the datastore. Once application is run locally or deployed to AppEngine, go to datastore view page create new _Configuration_ enity and add these values as entries. 
+
 ## Products
 - [App Engine][1]
 
