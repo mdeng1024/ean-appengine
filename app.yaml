@@ -1,0 +1,43 @@
+version: v1
+runtime: python27
+api_version: 1
+threadsafe: true
+
+# [START handlers]
+handlers:
+- url: /favicon\.ico
+  static_files: favicon.ico
+  upload: favicon\.ico
+
+- url: /libs
+  static_dir: libs
+
+- url: /.*
+  script: hotelbook.app
+  secure: always
+  login: required
+#  login: admin
+
+#  auth_fail_action: unauthorized
+# [END handlers]
+
+# [START libraries]
+# https://cloud.google.com/appengine/docs/python/tools/built-in-libraries-27
+libraries:
+- name: webapp2
+  version: latest
+- name: jinja2
+  version: latest
+# [END libraries]
+
+# [START skip undeployed files]
+skip_files:
+- ^(.*/)?#.*#$
+- ^(.*/)?.*~$
+- ^(.*/)?.*\.py[co]$
+- ^(.*/)?.*\.map$
+- ^(.*/)?.*/RCS/.*$
+- ^(.*/)?\..*$
+- ^\.idea$
+- ^e2e$
+# [END skip undeployed files]

@@ -1,0 +1,81 @@
+<!-- contents -->
+{% if hotels %}
+<table class="table table-hover sortable">
+    <thead>
+    <tr>
+        <th data-defaultsort='disabled'></th>
+        <th>Hotel</th>
+        <th>Room</th>
+        <th>Price</th>
+        <th>Rating</th>
+        <th data-defaultsort='disabled'></th>
+    </tr>
+    </thead>
+    <!-- [START greetings] -->
+    <tbody>
+    {% for hotel in hotels %}
+    <!--data={ form_data }-->
+    <tr class="clickableRow" data-href="/hotelinfo?hotelId={{ hotel.id }}" data-name="{{ hotel.name | safe }}">
+        <td>
+            {% if hotel.imageUrl %}
+            <img src="{{ hotel.imageUrl }}" class="img-thumbnail">
+            {% endif %}
+        </td>
+        <td>
+            <p><b>{{ hotel.name | safe }}</b><br/><br/>
+            {{ hotel.address }}<br/>
+            {{ hotel.city }} {{ hotel.province }} {{ hotel.post_code }}</p>
+        </td>
+        <td>
+            <p>{{ hotel.roomDescription | safe }}</p><br />
+            {% if hotel.valueAdds %}
+            <p>{{ hotel.valueAdds }}</p>
+            {% endif %}
+        </td>
+        <td>
+            <p>{{ hotel.totalRate }}</p>
+        </td>
+        <td>
+            <p>{{ hotel.rating }}</p>
+        </td>
+        <td>
+            <p></p>
+        </td>
+    </tr>
+    {% endfor %}
+    <!-- [END greetings] -->
+    </tbody>
+</table>
+{% endif %}
+{% if more %}
+<div class="text-right">
+    <button class="btn btn-primary" type="button" onclick="$('#nextButtonSpin').toggle();$doListing(true)">
+        <span class="glyphicon glyphicon-refresh spinning" id="nextButtonSpin" style="display: none" ></span> Next
+    </button>
+</div>
+{% endif %}
+
+<script type="text/javascript">
+    $(function () {
+        $(".clickableRow").click(function() {
+            var url = encodeURI($(this).data("href"));
+            var hotelName = $(this).data("name");
+            //            console.log(url);
+//            $.popupWindow(url, { height: 700, width: 1024 });
+            BootstrapDialog.show({
+                title: hotelName,
+                cssClass: 'hotel-info',
+                message: function(dialog) {
+                    var $message = $('<div></div>');
+                    var pageToLoad = dialog.getData('pageToLoad');
+                    $message.load(pageToLoad);
+
+                    return $message;
+                },
+                data: {
+                    'pageToLoad': url
+                }
+            });
+        });
+    });
+</script>

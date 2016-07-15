@@ -1,0 +1,129 @@
+<!-- popup hotel detail -->
+<div class="container ">
+    <div class="panel panel-default box-shadow--2dp">
+        {% if hotel %}
+        <!--<h2><span class="hotel-title">{{ hotel.name | safe }}</span></h2>-->
+
+        <div class="row row-reset body">
+            <div id="myCarousel" class="carousel slide col-md-6" data-ride="carousel" data-interval="false">
+                <!-- Indicators -->
+                <ol class="carousel-indicators">
+                    {% for i in range(hotel.imageSize()) %}
+                        {% if i == 0 %}
+                    <li data-target="#myCarousel" data-slide-to="{{ i }}" class="active"></li>
+                        {% else %}
+                    <li data-target="#myCarousel" data-slide-to="{{ i }}"></li>
+                        {% endif %}
+                    {% endfor %}
+                </ol>
+
+                <!-- Wrapper for slides -->
+                <div class="carousel-inner" role="listbox">
+                    {% for i in range(hotel.imageSize()) %}
+                        {% if i == 0 %}
+                    <div class="item active">
+                        {% else %}
+                    <div class="item">
+                        {% endif %}
+                        <img src="{{ hotel.images[i] }}" >
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Left and right controls -->
+                <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
+                    <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
+                    <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                </a>
+            </div>
+            <div class="col-md-6">
+                <div id="googleMap" class="item map"></div>
+            </div>
+        </div>
+    </div>
+
+    <hr />
+    <div id="hotelDescription" class="panel panel-default box-shadow--2dp">
+        <div class="panel-body">
+            {{ hotel.roomDescription | safe }}
+        </div>
+    </div>
+
+
+    <div id="roomTable" class="panel panel-default box-shadow--2dp">
+        <div class="panel-body">
+            {% if hotel.rooms %}
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th></th>
+                    <th>Room Type</th>
+                    <th>Description</th>
+                    <th>Amenities</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <!-- [START greetings] -->
+                <tbody>
+                {% for room in hotel.rooms %}
+                <tr>
+                    <td>
+                        {% if room.image_url %}
+                        <img src="{{ room.image_url }}" class="img-rounded" />
+                        {% endif %}
+                    </td>
+                    <td>
+                        <p><b>{{ room.name }}</b></p>
+                    </td>
+                    <td>
+                        <p>{{ room.description | safe }}</p>
+                    </td>
+                    <td>
+                        <ul>
+                        {% for amenity in room.amenity %}
+                            <li>{{ amenity }}</li>
+                        {% endfor %}
+                        </ul>
+                    </td>
+                    <td>
+                        <p></p>
+                    </td>
+                </tr>
+                {% endfor %}
+                <!-- [END greetings] -->
+                </tbody>
+            </table>
+            {% endif %}
+        </div>
+    </div>
+
+    {% else %}
+        <b> No Hotel Found</b>
+    {% endif %}
+</div>
+<script>
+    var map;
+    function initMap() {
+        var myLocation = {lat: {{ hotel.latitude }}, lng: {{ hotel.longitude }}};
+        map = new google.maps.Map(document.getElementById('googleMap'), {
+            center: myLocation,
+            zoom: 16,
+            scrollwheel: false,
+            draggable: true,
+            panControl: true,
+            zoomControl: true,
+            mapTypeControl: false,
+            scaleControl: true
+        });
+        var marker = new google.maps.Marker({
+            position: myLocation,
+            map: map,
+            title: '{{ hotel.name }}'
+        });
+    }
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ mapKey }}" async defer></script>

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+{% autoescape true %}
+<html>
+<head>
+    <!-- JavaScript libs loading -->
+    <script type="text/javascript" src="/libs/js/jquery-2.2.4.min.js"></script>
+    <script type="text/javascript" src="/libs/js/moment.js"></script>
+    <script type="text/javascript"
+            src="/libs/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript"
+            src="/libs/bootstrap-select/js/bootstrap-select.min.js"></script>
+    <script type="text/javascript"
+            src="/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
+    <script type="text/javascript"
+            src="/libs/bootstrap-dialog/bootstrap-dialog.min.js"></script>
+    <script type="text/javascript"
+            src="/libs/bootstrap-sortable/bootstrap-sortable.js"></script>
+    <!--<script type="text/javascript" src="/libs/js/jquery.popupwindow.js"></script>-->
+
+    <!-- [START css] -->
+    <link type="text/css" rel="stylesheet"
+          href="/libs/bootstrap/css/bootstrap.min.css"/>
+    <link type="text/css" rel="stylesheet"
+          href="/libs/bootstrap-select/css/bootstrap-select.min.css"/>
+    <link type="text/css" rel="stylesheet"
+          href="/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css"/>
+    <link type="text/css" rel="stylesheet"
+          href="/libs/bootstrap-dialog/bootstrap-dialog.min.css" />
+    <link type="text/css" rel="stylesheet"
+          href="/libs/bootstrap-sortable/bootstrap-sortable.css" />
+    <link type="text/css" rel="stylesheet" href="/libs/css/main.css" />
+    <!-- [END css] -->
+</head>
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand">Expedia Affiliate Network - Hotel API
+                Testing</a>
+        </div>
+
+        <ul class="nav navbar-nav navbar-right">
+            <li><a href="{{ url|safe }}"><span class="glyphicon glyphicon-log-in"></span> {{ url_linktext }}</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container">
+    <p>&nbsp;</p>
+    <!-- Search Criterial Selection -->
+    <form action="/listhotels" method="post" id="listHotels">
+        <div class="controls-row">
+            <div class="col-md-3">
+                <label clss="control-label" for="destination">Destination</label>
+                <select class="selectpicker" id="destination" name="destination">
+                    <option selected>Sydney, AU</option>
+                    <option>Melbourne, AU</option>
+                    <option>Brisbane, AU</option>
+                    <option>Adelaide, AU</option>
+                    <option>Perth, AU</option>
+                    <option>Auckland, NZ</option>
+                    <option>Wellington, NZ</option>
+                    <option>Christchurch, NZ</option>
+                    <option>Queenstown, NZ</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label clss="control-label" for="rooms">Rooms</label>
+                <select class="selectpicker" data-width="120px" id="rooms" name="rooms">
+                    <option selected>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label clss="control-label" for="adults">Adults</label>
+                <select class="selectpicker" data-width="120px" id="adults" name="adults">
+                    <option selected>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label clss="control-label" for="checkInDate">Check In</label>
+                    <div class="input-group date" id="checkInDate">
+                        <input type='text' class="form-control" name="checkInDate" />
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label clss="control-label" for="checkOutDate">Check Out</label>
+                    <div class="input-group date" id="checkOutDate">
+                        <input type='text' class="form-control" name="checkOutDate" />
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-1">
+                <label clss="control-label" for="rating">Rating &gt;=</label>
+                <select class="selectpicker" data-width="80px" id="rating" name="rating">
+                    <option selected>0</option>
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                </select>
+            </div>
+        </div>
+        <div class="text-right">
+            <button class="btn btn-large btn-primary" onclick="$doListing(false)">
+                <span class="glyphicon glyphicon-refresh spinning" id="spiningWheel" style="display: none" ></span>
+                Search EAN
+            </button>
+            <!--<input type="submit" class="btn btn-large btn-primary"-->
+                    <!--value="Search EAN" align="right">-->
+        </div>
+    </form>
+
+
+    <hr>
+    <!-- hotel list starts -->
+    <div class="panel panel-primary">
+        <div class="panel-heading">Search Results</div>
+        <div class="panel-body" id="hotelListTable">
+            <!-- contents -->
+
+        </div>
+
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $getNextDate = function(aDate) {
+            if (aDate != null) {
+                return new Date(aDate.setTime(aDate.getTime() + 86400000));
+            } else {
+                var aDate = new Date();
+                return new Date(aDate.setTime(aDate.getTime() + 86400000));
+            }
+        };
+        $validateInputs = function() {
+            var checkInDate = $('input[name=checkInDate]').val();
+            var checkOutDate = $('input[name=checkOutDate]').val();
+            if (!checkOutDate || checkInDate == checkOutDate) {
+                alert("CheckOut Date is incorrect, please change it");
+                return false;
+            } else {
+                return true;
+            }
+        }
+        $('#rooms').on("change", function(e) {
+            var roomVal = $('#rooms').val();
+            var adultsVal = $('#adults').val();
+            if (roomVal > adultsVal) {
+                $('#adults').val(roomVal).change();
+            }
+        });
+        $('#checkInDate').datetimepicker({
+            format: 'MM/DD/YYYY',
+            viewMode: 'days',
+            minDate: new Date()
+        });
+        $('#checkOutDate').datetimepicker({
+            useCurrent: false,
+            format: 'MM/DD/YYYY',
+            viewMode: 'days',
+            minDate: new Date()
+        });
+        $("#checkInDate").on("dp.change", function (e) {
+            $('#checkOutDate').data("DateTimePicker").minDate($getNextDate(e.date));
+            var month = nextDay.getMonth() + 1;
+            var nextDayStr = (month < 10? '0' + month : month) + '/' + nextDay.getDate() + '/' + nextDay.getFullYear()
+            $('input[name=checkOutDate]').val(nextDayStr);
+        });
+        $("#checkOutDate").on("dp.change", function (e) {
+//            $('#checkInDate').data("DateTimePicker").maxDate(e.date);
+        });
+        $doListing = function(paging) {
+            if (!$validateInputs()) return;
+            var postData = $("#listHotels").serializeArray();
+            postData.push({name: "paging", value: paging});
+            var formURL = $("#listHotels").attr("action");
+
+            // display spanning wheel
+            $('#spiningWheel').toggle();
+
+            $.ajax(
+                {
+                    url : formURL,
+                    type: "POST",
+                    data : postData,
+                    success:function(data, textStatus, jqXHR)
+                    {
+                        $('#spiningWheel').toggle();
+                        $('#hotelListTable').empty().append(data);
+                        $.bootstrapSortable();
+                    },
+                    error: function(jqXHR, textStatus, errorThrown)
+                    {
+                        $('#spiningWheel').toggle();
+                        alert(errorThrown.toString());
+                    }
+                });
+        };
+        $("#listHotels").submit(function(e) {
+            e.preventDefault(); //STOP default action
+        });
+    });
+</script>
+</body>
+</html>
+{% endautoescape %}
